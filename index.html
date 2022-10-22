@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <title>To-Do List</title>
+  </head>
+
+  <body>
+    <main id="app">
+      <section class="todo-list">
+        <h3>Lista de Tarefas</h3>
+
+        <div class="all-todos">
+          <div
+            v-for="todo in todos"
+            :key="todo.title"
+            :class="todo.done ? 'single-todo done' : 'single-todo' "
+            @click="doneTodo(todo)"
+          >
+            <p>{{ todo.title }}</p>
+            <span>
+              <button type="button" @click="deleteTodo(todo)">x</button>
+            </span>
+          </div>
+        </div>
+
+        <button class="clear" v-if="todos.length > 0" @click="clearAll">
+          Limpar tudo
+        </button>
+
+        <input
+          type="text"
+          placeholder="Escreva uma nova tarefa..."
+          v-model="form.title"
+        />
+        <button class="add" :disabled="!form.title" @click="addTodo">
+          Adicionar
+        </button>
+
+        <div class="instructions">
+          Instruções:
+          <ul>
+            <li>
+              Clique no texto da tarefa para alternar entre feita / não feita
+            </li>
+            <li>Use o botão limpar tudo para remover todas as tarefas</li>
+            <li>Use o input para adicionar novas tarefas</li>
+            <li>Use o botão com o x para remove a tarefa</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+    <script src="https://unpkg.com/vue@next"></script>
+    <script>
+      Vue.createApp({
+        created() {
+          const todosInLocalStorage =
+            JSON.parse(localStorage.getItem("todos")) ?? [];
+          this.todos = [...todosInLocalStorage];
+        },
+        // Não utilizar com um numero grande de dados
+        updated() {
+          this.saveTodoInLocalStorage();
+        },
+        data() {
+          return {
+            message: "Hello Vue!",
+            todos: [],
+            form: {
+              title: null,
+              done: false,
+            },
+          };
+        },
+        methods: {
+          clearAll() {
+            this.todos = [];
+          },
+          addTodo() {
+            this.todos.push(this.form);
+            this.form = { title: null, done: false };
+          },
+          doneTodo(todo) {
+            todo.done = !todo.done;
+          },
+          saveTodoInLocalStorage() {
+            localStorage.setItem("todos", JSON.stringify(this.todos));
+          },
+          deleteTodo(todo) {
+            const index = this.todos.findIndex((t) => t.title === todo.title);
+            if (index >= 0) {
+              this.todos.splice(index, 1);
+            }
+          },
+        },
+      }).mount("#app");
+    </script>
+  </body>
+</html>
